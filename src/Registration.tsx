@@ -32,7 +32,7 @@ const Registration = () => {
             url: "https://test-a7985.firebaseapp.com",
           })
           .then(() => {
-            alert("email");
+            alert("이메일 인증을 위해 입력하신 이메일로 인증 메일을 전송 하였습니다 확인해 주세요.");
           })
           .catch((error) => {
             alert(error.message);
@@ -46,6 +46,7 @@ const Registration = () => {
                 email,
                 name,
                 id,
+                password
               });
           })
           .catch((error) => {

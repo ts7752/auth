@@ -8,10 +8,30 @@ import {
 } from "react-native";
 import React from "react";
 import { firebase } from "../config";
+import type { FirebaseError } from "firebase/app";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
 
-const Dashboard = () => {
+type UserData = {
+  name: string;
+};
+
+const Dashboard = (): JSX.Element => {
   const [name, setName] = useState<string>("");
 
+  //비밀번호 변경
+  const changePassword = (): void => {
+    const email = firebase.auth().currentUser?.email;
+    if (email) {
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(() => {
+          alert("비밀번호 변경 이메일을 전송 하였습니다 확인해 주세요.")
+        }).catch((error: FirebaseError) => {
+          alert(error)
+        })
+    }
+  }
+  
   useEffect(() => {
     firebase
       .firestore()
@@ -20,10 +40,8 @@ const Dashboard = () => {
       .get()
       .then((snapshot) => {
         if (snapshot.exists) {
-          const data = snapshot.data();
-          if (data) {
-            setName(data.name);
-          }
+          const data = snapshot.data() as UserData;
+          setName(data.name);
         } else {
           console.log("Not Exist");
         }
@@ -34,6 +52,15 @@ const Dashboard = () => {
       <Text style={{ fontSize: 20, fontWeight: "bold" }}>
         안녕하세요 {name}
       </Text>
+      <TouchableOpacity
+        onPress={() => {
+          changePassword();
+        }}
+        style={styles.button}
+      >
+        <Text style={{ fontSize: 20, fontWeight: "bold" }}>비밀번호 변경</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         onPress={() => {
           firebase.auth().signOut();

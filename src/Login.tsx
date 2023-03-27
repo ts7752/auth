@@ -9,6 +9,8 @@ import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { firebase } from "../config";
 import { createStackNavigator } from "@react-navigation/stack";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
 
 const Stack = createStackNavigator();
 
@@ -25,8 +27,20 @@ const Login = () => {
         .auth()
         .signInWithEmailAndPassword(inputEmail, inputPassword);
     } catch (error) {
-      alert(error);
+      alert("이메일 또는 비밀번호를 확인해 주세요");
     }
+  };
+  //비밀번호 분실 시 비밀번호 재설정 링크
+  const forgetPassword = () => {
+    firebase
+      .auth()
+      .sendPasswordResetEmail(inputEmail)
+      .then(() => {
+        alert("패스워드 변경을 위해 이메일은 전송 하였습니다 확인해 주세요.");
+      })
+      .catch((error) => {
+        alert(error);
+      });
   };
 
   return (
@@ -65,6 +79,17 @@ const Login = () => {
         style={{ marginTop: 20 }}
       >
         <Text style={{ fontWeight: "bold", fontSize: 16 }}> 회원가입 </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          forgetPassword();
+        }}
+        style={{ marginTop: 20 }}
+      >
+        <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+          {" "}
+          비밀번호를 잊어 버리셨나요?{" "}
+        </Text>
       </TouchableOpacity>
     </View>
   );
