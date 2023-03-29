@@ -11,6 +11,7 @@ import { firebase } from "../config";
 import { createStackNavigator } from "@react-navigation/stack";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
+import CryptoJS from "crypto-js";
 
 const Stack = createStackNavigator();
 
@@ -23,9 +24,20 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      await firebase
-        .auth()
-        .signInWithEmailAndPassword(inputEmail, inputPassword);
+      const hashPassword = CryptoJS.SHA256(inputPassword).toString();
+      const user = await firebase
+        .firestore()
+        .collection("users")
+        .where("email", "==", inputEmail)
+        .where("password", "==", hashPassword)
+        .get();
+      if (user.docs.length === 0) {
+        alert("이메일 또는 비밀번호를 확인해 주세요");
+      } else {
+        await firebase
+          .auth()
+          .signInWithEmailAndPassword(inputEmail, hashPassword);
+      }
     } catch (error) {
       alert("이메일 또는 비밀번호를 확인해 주세요");
     }
@@ -60,7 +72,8 @@ const Login = () => {
           onChangeText={(text) => setInputPassword(text)}
           autoCapitalize="none"
           autoCorrect={false}
-          secureTextEntry={true}
+          //비밀번호 입력 시큐어 
+          //secureTextEntry={true}
         />
       </View>
       <TouchableOpacity onPress={() => loginUser()} style={styles.button}>

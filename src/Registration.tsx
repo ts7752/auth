@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { firebase } from "../config";
+import crypto from "crypto-js";
 
 const Registration = () => {
   const [email, setEmail] = useState<string>("");
@@ -21,9 +22,10 @@ const Registration = () => {
     id: string,
     password: string
   ) => {
+    const hashedPassword = crypto.SHA256(password).toString();
     await firebase
       .auth()
-      .createUserWithEmailAndPassword(email, password)
+      .createUserWithEmailAndPassword(email, hashedPassword)
       .then(() => {
         firebase
           .auth()
@@ -32,7 +34,9 @@ const Registration = () => {
             url: "https://test-a7985.firebaseapp.com",
           })
           .then(() => {
-            alert("이메일 인증을 위해 입력하신 이메일로 인증 메일을 전송 하였습니다 확인해 주세요.");
+            alert(
+              "이메일 인증을 위해 입력하신 이메일로 인증 메일을 전송 하였습니다 확인해 주세요."
+            );
           })
           .catch((error) => {
             alert(error.message);
@@ -46,7 +50,7 @@ const Registration = () => {
                 email,
                 name,
                 id,
-                password
+                password: hashedPassword,
               });
           })
           .catch((error) => {
@@ -86,7 +90,8 @@ const Registration = () => {
             placeholder="password"
             onChangeText={(password) => setPassword(password)}
             autoCorrect={false}
-            secureTextEntry={true}
+            //비밀번호 입력 시큐어 
+            // secureTextEntry={true}
           />
         </View>
         <TouchableOpacity
